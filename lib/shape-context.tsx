@@ -158,14 +158,16 @@ function ShapeProvider({
     [transitionShape]
   );
 
-  // Publish the current element radius as a CSS custom property so plain-CSS
-  // consumers that can't read React context stay in sync with the shape
-  // system — e.g. the @layer base :focus-visible fallback ring in
-  // globals.css. Set on <html> so portalled content sees it too.
+  // Publish both radius roles so CSS surfaces and portalled components stay
+  // in sync with the same shape system as the React components.
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--shape-input-radius",
       `${shapeMap[shape].bgRadius}px`
+    );
+    document.documentElement.style.setProperty(
+      "--shape-container-radius",
+      `${shapeMap[shape].containerRadius}px`
     );
   }, [shape]);
 

@@ -111,10 +111,7 @@ export function MobileDrawer({
       actionsRef={actionsRef}
     >
       <DialogPrimitive.Portal>
-        {/* Overlay — same scrim as the library's dialogs: an always-on
-            bg-black/40 base that stays visible for system-dark users (the
-            `dark:` variant only matches the explicit .dark class), boosted
-            to /80 in explicit dark mode. */}
+        {/* Shared scrim token follows the same theme as the other dialogs. */}
         <DialogPrimitive.Backdrop
           render={(backdropProps) => {
             const rest = omit(
@@ -124,7 +121,7 @@ export function MobileDrawer({
             return (
               <motion.div
                 {...(rest as MotionSafeDivProps)}
-                className="fixed inset-0 bg-black/40 dark:bg-black/80 z-[var(--z-overlay,40)]"
+                className="fixed inset-0 bg-[var(--scrim)] z-[var(--z-overlay,40)]"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: open ? 1 : 0 }}
                 transition={open ? { duration: 0.16 } : spring.moderate.exit}

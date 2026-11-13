@@ -1,183 +1,108 @@
-"use client";
+import Link from "next/link"
+import { BookCover } from "@/components/book-cover"
+import { AuthorLink } from "@/components/author-link"
+import { InlineExternalLink } from "@/components/inline-external-link"
+import { books, publishers } from "@/lib/books"
 
-import { useState, useSyncExternalStore } from "react";
-import { useTheme } from "next-themes";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
-import { CheckboxGroup, CheckboxItem } from "@/components/ui/checkbox-group";
-import { Button } from "@/components/ui/button";
-import { AppSidebar } from "@/components/sidebar-app/app-sidebar";
-import { SidebarInsetTopbar } from "@/components/sidebar-app/inset-topbar";
-import { useShapeContext, type ShapeVariant } from "@/lib/shape-context";
-import { useSizeContext, typeClass, type SizeVariant } from "@/lib/size-context";
-import { SurfaceProvider } from "@/lib/surface-context";
-import { fontWeights } from "@/lib/font-weight";
-import { useIcons } from "@/lib/icon-context";
-import { cn } from "@/lib/utils";
-
-const THEMES = [
-  { value: "system", label: "System" },
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-];
-const SHAPES: { value: ShapeVariant; label: string }[] = [
-  { value: "sharp", label: "Sharp" },
-  { value: "rounded", label: "Rounded" },
-  { value: "pill", label: "Pill" },
-];
-const SIZES: { value: SizeVariant; label: string }[] = [
-  { value: "default", label: "Default" },
-  { value: "compact", label: "Compact" },
-];
-const TOPICS = ["Mentions", "Replies", "Weekly digest", "Product news"];
-
-// The theme is only known in the browser (next-themes reads it after
-// hydration), so the server renders the control with "system".
-const subscribe = () => () => {};
-function useMounted() {
-  return useSyncExternalStore(subscribe, () => true, () => false);
-}
-
-export default function Page() {
-  const { theme, setTheme } = useTheme();
-  const { shape, setShape } = useShapeContext();
-  const { size, setSize } = useSizeContext();
-  const mounted = useMounted();
-  const icons = useIcons();
-  const [topics, setTopics] = useState<Set<number>>(new Set([0, 1]));
-
-  const toggleTopic = (i: number) =>
-    setTopics((prev) => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
-      return next;
-    });
-
+export default function Home() {
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <SidebarInsetTopbar />
-        <main className="flex flex-1 justify-center p-6">
-          <div className="flex w-full max-w-xl flex-col gap-10 py-10">
-            <header className="flex flex-col gap-2">
-              <h1
-                className={cn(typeClass("display", size), "text-foreground")}
-                style={{ fontVariationSettings: fontWeights.semibold }}
+    <main id="contenuto" className="author-home">
+      <section className="author-intro" aria-labelledby="author-name">
+        <h1 id="author-name">
+          Rosanna
+          <br />
+          Fanelli
+        </h1>
+        <div className="intro-copy">
+          <p>
+            Le opere di Rosanna Fanelli,
+            <br className="desktop-break" /> scritte insieme a Mauro Caneparo.
+          </p>
+        </div>
+      </section>
+      <section
+        id="libri"
+        className="books-section"
+        aria-labelledby="books-title"
+      >
+        <div className="section-heading">
+          <h2 id="books-title">I libri</h2>
+          <AuthorLink href="/libri" icon="next">
+            Tutti i libri
+          </AuthorLink>
+        </div>
+        <div className="book-grid">
+          {books.slice(0, 3).map((book, index) => (
+            <article className="book-entry" key={book.slug}>
+              <Link
+                href={`/libri/${book.slug}`}
+                className={`book-art book-art-${index}`}
+                aria-label={`Scopri ${book.title}`}
               >
-                Your app starts here
-              </h1>
-              <p className={cn(typeClass("body", size), "text-muted-foreground")}>
-                Every Fluid Functionalism component is in components/ui, set to
-                the choices you made on the site. Edit app/page.tsx to start
-                building, and components/providers.tsx to change the defaults.
-              </p>
-            </header>
-
-            <section className="flex flex-col gap-3">
-              <h2
-                className={cn(typeClass("subtitle", size), "text-foreground")}
-                style={{ fontVariationSettings: fontWeights.semibold }}
-              >
-                Make it yours
-              </h2>
-              {/* bg-muted is surface 2: popups opened in here lift above it */}
-              <SurfaceProvider value={2}>
-                <div className="flex flex-col gap-1 rounded-xl bg-muted p-3">
-                  <SettingRow label="Theme" hint="Press D to flip light and dark">
-                    <Select value={mounted ? (theme ?? "system") : "system"} onValueChange={setTheme}>
-                      <SelectTrigger variant="borderless" className="w-auto min-w-0" />
-                      <SelectContent>
-                        {THEMES.map((o, i) => (
-                          <SelectItem key={o.value} value={o.value} index={i}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </SettingRow>
-                  <SettingRow label="Radius">
-                    <Select value={shape} onValueChange={(v) => setShape(v as ShapeVariant)}>
-                      <SelectTrigger variant="borderless" className="w-auto min-w-0" />
-                      <SelectContent>
-                        {SHAPES.map((o, i) => (
-                          <SelectItem key={o.value} value={o.value} index={i}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </SettingRow>
-                  <SettingRow label="Size">
-                    <Select value={size} onValueChange={(v) => setSize(v as SizeVariant)}>
-                      <SelectTrigger variant="borderless" className="w-auto min-w-0" />
-                      <SelectContent>
-                        {SIZES.map((o, i) => (
-                          <SelectItem key={o.value} value={o.value} index={i}>
-                            {o.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </SettingRow>
-                </div>
-              </SurfaceProvider>
-            </section>
-
-            <section className="flex flex-col gap-3">
-              <h2
-                className={cn(typeClass("subtitle", size), "text-foreground")}
-                style={{ fontVariationSettings: fontWeights.semibold }}
-              >
-                Notify me about
-              </h2>
-              {/* One hover highlight glides between rows; checked neighbours merge */}
-              <CheckboxGroup checkedIndices={topics}>
-                {TOPICS.map((label, i) => (
-                  <CheckboxItem
-                    key={label}
-                    index={i}
-                    label={label}
-                    checked={topics.has(i)}
-                    onToggle={() => toggleTopic(i)}
-                  />
-                ))}
-              </CheckboxGroup>
-            </section>
-
-            <div className="flex flex-wrap gap-2">
-              <Button variant="primary" leadingIcon={icons.check}>
-                Save
-              </Button>
-              <Button variant="tertiary" onClick={() => setTopics(new Set())}>
-                Clear
-              </Button>
-            </div>
-          </div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
-  );
-}
-
-function SettingRow({
-  label,
-  hint,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  const { size } = useSizeContext();
-  return (
-    <div className="flex items-center justify-between gap-4 pl-2">
-      <div className="flex flex-col">
-        <span className={cn(typeClass("body", size), "text-foreground")}>{label}</span>
-        {hint && <span className={cn(typeClass("caption", size), "text-muted-foreground")}>{hint}</span>}
-      </div>
-      {children}
-    </div>
-  );
+                <BookCover book={book} preload={index === 0} />
+              </Link>
+              <div className="book-caption">
+                <h3>
+                  <Link href={`/libri/${book.slug}`}>{book.title}</Link>
+                </h3>
+                <p>{book.cardDescription}</p>
+                <AuthorLink
+                  href={`/libri/${book.slug}`}
+                  variant="primary"
+                  className="book-more"
+                >
+                  Scopri il libro
+                </AuthorLink>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+      <section
+        id="autrice"
+        className="author-about"
+        aria-labelledby="about-title"
+      >
+        <h2 id="about-title">L’autrice</h2>
+        <div className="typeset">
+          <p>
+            Rosanna Fanelli è nata a Bari e risiede a Novara. È insegnante alla
+            scuola primaria da vent’anni.
+          </p>
+          <p>
+            Nel 2017 inizia la collaborazione con Mauro Caneparo con lavoro di
+            editing per il romanzo{" "}
+            <InlineExternalLink
+              href="https://www.libreriauniversitaria.it/segno-tanit-caneparo-mauro-susalibri/libro/9788897933526"
+            >
+              <i>Il segno di Tanit</i>
+            </InlineExternalLink>{" "}
+            e la biografia{" "}
+            <InlineExternalLink
+              href="https://www.libreriauniversitaria.it/ricordi-orlando-brescia-generoso-asinochilegge/libro/9788894290479"
+            >
+              <i>Ricordi di Orlando</i>
+            </InlineExternalLink>
+            . A questi uniscono una serie di racconti
+            presentati e premiati in diversi concorsi.
+          </p>
+          <p>
+            Nel 2022 pubblica, sempre in collaborazione con Caneparo, il libro{" "}
+            <Link href="/libri/il-previ-va-masa">
+              <i>Il previ va masà</i>
+            </Link>
+            , edito da {publishers.baimaRonchetti.name}. Con Caneparo firma anche{" "}
+            <Link href="/libri/il-richiamo-dell-abate">
+              <i>Il richiamo dell’abate</i>
+            </Link>{" "}
+            e il romanzo{" "}
+            <Link href="/libri/geode">
+              <i>Geode</i>
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+    </main>
+  )
 }

@@ -13,7 +13,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { IconComponent } from "@/lib/icon-context";
 import { cn } from "@/lib/utils";
 import { omit } from "@/lib/omit";
-import { useShape } from "@/lib/shape-context";
+import { nestedRadius, useShape } from "@/lib/shape-context";
 import { useSizeVariant } from "@/lib/size-context";
 
 const buttonVariants = cva(
@@ -21,7 +21,7 @@ const buttonVariants = cva(
     // whitespace-nowrap: a label never breaks onto 2 lines. It also makes
     // the label the button's narrowest width, so a tight row moves the
     // button (or overflows) instead of squeezing it.
-    "group relative isolate inline-flex items-center justify-center outline-none cursor-pointer select-none whitespace-nowrap",
+    "group relative isolate inline-flex items-center justify-center outline-none cursor-pointer select-none whitespace-nowrap font-normal [font-variation-settings:normal]",
     "transition-colors duration-80",
     // A loading button is disabled too, but stays at full strength: aria-busy
     // marks it as working, not unavailable.
@@ -31,9 +31,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "text-background",
-        secondary: "text-foreground",
-        tertiary: "text-foreground",
+        // Shared hierarchy: accent fill, neutral bordered fill, outline, ghost.
+        // Keep labels at a fixed weight across hover and pressed states.
+        primary: "text-primary-foreground font-[550]",
+        secondary: "text-secondary-foreground font-medium border border-[var(--control-border)]",
+        tertiary: "text-foreground font-medium",
         ghost: "text-muted-foreground hover:text-foreground",
         // Tailwind reds, with their values as fallbacks for projects that
         // haven't emitted them. A red-500 wash in both themes under a
@@ -117,15 +119,14 @@ interface ButtonProps
    same-color box-shadow spread fills it back out to the full bounds.
    Pressing collapses the spread, shrinking the surface by exactly 1px per
    side at any width — a scale would warp (2% of a 400px button is 8px
-   sideways but under 1px vertically). Primary's fills are opaque
-   color-mix()es. Secondary's are see-through (--tint), so it takes on the
-   surface or tinted banner under it; its fill and spread ring still never
-   double up, since an outer shadow renders only outside the surface box. */
+   sideways but under 1px vertically). Primary uses the shared accent roles;
+   secondary has an opaque neutral surface and a border, keeping it distinct
+   over row highlights. An outer shadow renders outside the surface box. */
 const bgVariants: Record<string, string> = {
   primary:
-    "[--btn-bg:var(--foreground)] group-hover:[--btn-bg:color-mix(in_oklab,var(--foreground)_90%,var(--background))] group-active:[--btn-bg:color-mix(in_oklab,var(--foreground)_80%,var(--background))] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
+    "[--btn-bg:var(--primary)] group-hover:[--btn-bg:var(--primary-hover)] group-active:[--btn-bg:var(--primary-pressed)] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
   secondary:
-    "[--btn-bg:var(--tint)] group-hover:[--btn-bg:var(--tint-hover)] group-active:[--btn-bg:var(--tint)] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
+    "[--btn-bg:var(--control-background)] group-hover:[--btn-bg:var(--control-hover)] group-active:[--btn-bg:var(--active)] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
   // The border ring is an outer 1px shadow at rest that hands off to an
   // inset 1px shadow when pressed, so the ring moves inward with the
   // surface. The translucent fill only ever reaches the ring's inner edge
@@ -160,9 +161,9 @@ const loadingBgVariants: Record<string, string> = Object.fromEntries(
    geometric press-collapse still reacts on top. */
 const activeBgVariants: Record<string, string> = {
   primary:
-    "[--btn-bg:color-mix(in_oklab,var(--foreground)_80%,var(--background))] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
+    "[--btn-bg:var(--primary-pressed)] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
   secondary:
-    "[--btn-bg:var(--tint)] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
+    "[--btn-bg:var(--active)] bg-[var(--btn-bg)] shadow-[0_0_0_1px_var(--btn-bg)] group-active:shadow-[0_0_0_0px_var(--btn-bg)]",
   tertiary:
     "bg-active shadow-[0_0_0_1px_var(--border),inset_0_0_0_0px_var(--border)] group-active:shadow-[0_0_0_0px_var(--border),inset_0_0_0_1px_var(--border)]",
   ghost:
@@ -241,9 +242,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <span
           aria-hidden
           className={cn(
-            "absolute inset-px rounded-[inherit] transition-[box-shadow,background-color] [transition-duration:180ms,80ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1),ease] group-active:[transition-duration:80ms,80ms]",
+            "absolute inset-px transition-[box-shadow,background-color] [transition-duration:180ms,80ms] [transition-timing-function:cubic-bezier(0.23,1,0.32,1),ease] group-active:[transition-duration:80ms,80ms]",
             bgClass
           )}
+          style={{ borderRadius: nestedRadius(shape.bgRadius, 1, variant === "secondary" ? 1 : 0) }}
         />
         <span className="relative inline-flex items-center justify-center gap-[inherit]">
           {loading ? (

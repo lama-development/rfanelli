@@ -17,7 +17,7 @@ import {
 } from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { fontWeights } from "@/lib/font-weight";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useIcons } from "@/lib/icon-context";
 import { spring, exitFallbackMs } from "@/lib/springs";
@@ -176,10 +176,10 @@ interface DialogContentProps extends HTMLAttributes<HTMLDivElement> {
    *  way out, e.g. a command menu that closes on Escape and on a pick.
    *  @default true */
   showCloseButton?: boolean;
-  /** Where the panel sits: centered, or anchored 12dvh from the top so a
-   *  panel whose height follows its content (a command menu) keeps its top
-   *  edge still. @default "center" */
-  position?: "center" | "top";
+  /** Centered, anchored 12dvh from the top, or a full-width bottom sheet.
+   *  Bottom sheets use the drawer spring and preserve the dialog's focus,
+   *  dismissal and scroll-lock behavior. @default "center" */
+  position?: "center" | "top" | "bottom";
 }
 
 const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
@@ -187,6 +187,9 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
     const icons = useIcons();
     const XIcon = icons.x;
     const shape = useShape();
+    const reducedMotion = useReducedMotion();
+    const bottom = position === "bottom";
+    const panelSpring = bottom ? spring.moderate : spring.slow;
     const substrate = useSurface();
     const dialogLevel = Math.min(substrate + DIALOG_OFFSET, 8);
     // The size ladder narrows the dialog one notch in compact regions —
@@ -232,7 +235,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                 {...rest}
                 className={cn(
                   container ? "absolute" : "fixed",
-                  "inset-0 z-[var(--z-overlay,40)] bg-black/40 dark:bg-black/80"
+                  "inset-0 z-[var(--z-overlay,40)] bg-[var(--scrim)]"
                 )}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: exiting ? 0 : 1 }}
@@ -272,28 +275,30 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                 >)}
                 className={cn(
                   container ? "absolute" : "fixed",
-                  "left-1/2 z-[var(--z-modal,50)] w-[calc(100%-2rem)]",
-                  position === "top" ? "top-[12dvh]" : "top-1/2",
+                  "z-[var(--z-modal,50)]",
+                  bottom ? "bottom-0 left-0 w-full" : "left-1/2 w-[calc(100%-2rem)]",
+                  !bottom && (position === "top" ? "top-[12dvh]" : "top-1/2"),
                   surfaceClasses(dialogLevel),
                   "p-6 focus:outline-none",
-                  size === "sm" && (compact ? "max-w-[360px]" : "max-w-[400px]"),
-                  size === "lg" && (compact ? "max-w-[480px]" : "max-w-[540px]"),
-                  size === "xl" && (compact ? "max-w-[800px]" : "max-w-[880px]"),
+                  !bottom && size === "sm" && (compact ? "max-w-[360px]" : "max-w-[400px]"),
+                  !bottom && size === "lg" && (compact ? "max-w-[480px]" : "max-w-[540px]"),
+                  !bottom && size === "xl" && (compact ? "max-w-[800px]" : "max-w-[880px]"),
                   shape.container,
+                  bottom && "rounded-b-none",
                   className
                 )}
                 style={{
                   ...(baseStyle as React.CSSProperties | undefined),
                   ...(props.style as React.CSSProperties | undefined),
                 }}
-                initial={{ opacity: 0, scale: 0.97, x: "-50%", y: position === "top" ? 0 : "-50%" }}
+                initial={{ opacity: 0, scale: bottom || reducedMotion ? 1 : 0.97, x: bottom ? 0 : "-50%", y: bottom ? (reducedMotion ? 0 : "100%") : position === "top" ? 0 : "-50%" }}
                 animate={{
                   opacity: exiting ? 0 : 1,
-                  scale: exiting ? 0.97 : 1,
-                  x: "-50%",
-                  y: position === "top" ? 0 : "-50%",
+                  scale: exiting && !bottom && !reducedMotion ? 0.97 : 1,
+                  x: bottom ? 0 : "-50%",
+                  y: bottom ? (exiting && !reducedMotion ? "100%" : 0) : position === "top" ? 0 : "-50%",
                 }}
-                transition={exiting ? spring.slow.exit : spring.slow}
+                transition={exiting ? panelSpring.exit : panelSpring}
                 onAnimationComplete={() => {
                   if (exiting) exitActionsRef?.current?.unmount();
                 }}

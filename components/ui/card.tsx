@@ -329,15 +329,13 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
     const emphasized = selected;
 
     // A standalone card (no group) is its own tile — always rounded + clipped.
-    // Inside a group, a separated tile carries its own rounding + clip only when
-    // it draws a visible frame; a borderless separated tile has no surface to
-    // hug, so it stays unclipped and its media reads as a plain square, and a
-    // card in a continuous block leans on the shared group frame for both.
+    // Rows share the highlight's shape so selections, stretched links and focus
+    // rings follow its corners. Only standalone or framed tiles clip content.
     const tileShape = !group
       ? cn(shape.container, "overflow-hidden")
       : separated && outlined
         ? cn(shape.container, "overflow-hidden border border-border/60")
-        : "";
+        : shape.container;
 
     // Stretched overlay makes the whole card the click target while keeping
     // action buttons (higher z) independently clickable — the accessible
@@ -446,7 +444,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           {selected && (
             <span
               aria-hidden
-              className={cn("absolute inset-0 -z-10 bg-active pointer-events-none", shape.container)}
+              className="absolute inset-0 -z-10 bg-active pointer-events-none rounded-[inherit]"
             />
           )}
 

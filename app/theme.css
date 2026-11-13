@@ -1,0 +1,192 @@
+/*
+ * Carta & malva. Single source of truth for both color themes.
+ * Light: ivory paper, plum ink, muted mauve actions.
+ * Dark: neutral charcoal with a trace of mauve, dusty lilac actions.
+ * Components consume role tokens; layout and typography live in globals.css.
+ * Theme switching is controlled exclusively by next-themes (.dark on html).
+ */
+
+:root {
+  --scrim: rgb(0 0 0 / 0.4);
+  /* Page, text and component roles. */
+  --background: #f8f5f3;
+  --foreground: #332f32;
+  --card: #fcfafb;
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-3);
+  --popover-foreground: var(--foreground);
+  --primary: var(--action-background);
+  --primary-hover: var(--action-hover);
+  --primary-pressed: var(--action-pressed);
+  --primary-foreground: var(--action-foreground);
+  --secondary: var(--tint);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--hover);
+  --muted-foreground: #655f65;
+  --accent: var(--hover);
+  --accent-foreground: var(--foreground);
+  --destructive: #a4453d;
+  --border: #dedadd;
+  --input: #9a8294;
+  --ring: var(--focus-ring);
+  /* Supporting scale and navigation. */
+  --chart-1: #e2dce1;
+  --chart-2: #c3a7ba;
+  --chart-3: #a3839b;
+  --chart-4: #896580;
+  --chart-5: #705269;
+  --sidebar: var(--surface-2);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--hover);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--focus-ring);
+  /* Elevation surfaces and the existing Fluid shadow system. */
+  --surface-inset: color-mix(in oklab, var(--foreground) 3%, transparent);
+  --surface-1: var(--background);
+  --surface-2: #fcfaf9;
+  --surface-3: #fffdfd;
+  --surface-4: #fffdfd;
+  --surface-5: #fffdfd;
+  --surface-6: #fffdfd;
+  --surface-7: #fffdfd;
+  --surface-8: #fffdfd;
+  --shadow-color: rgb(0 0 0 / 0.06);
+  --shadow-1: 0 0 0 1px var(--shadow-color);
+  --shadow-2: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color);
+  --shadow-3: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color);
+  --shadow-4: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color);
+  --shadow-5: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color);
+  --shadow-6: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color);
+  --shadow-7: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color);
+  --shadow-8: 0 0 0 1px var(--shadow-color), 0 1px 1px -0.5px var(--shadow-color), 0 3px 3px -1.5px var(--shadow-color), 0 6px 6px -3px var(--shadow-color), 0 12px 12px -6px var(--shadow-color), 0 24px 24px -12px var(--shadow-color), 0 48px 48px -24px var(--shadow-color), 0 96px 96px -48px var(--shadow-color);
+  /* Interactive washes remain separate from solid actions. */
+  /* Relative overlays keep feedback visible at every surface elevation. */
+  --hover: rgb(0 0 0 / 0.04);
+  --active: rgb(0 0 0 / 0.07);
+  --selected: #e2dce1;
+  --destructive-light: #f8e9e3;
+  --overlay: 0 0 0;
+  --fluid-accent: var(--action-background);
+  --focus-ring: var(--fluid-accent);
+  --tint: #e9e5e8;
+  --tint-hover: #e0dbe0;
+  --info: #37667e;
+  --success: #46704a;
+  --warning: #8a611e;
+  --checker-a: #bbbbbb;
+  --checker-b: #ffffff;
+  /* Mauve actions: rest, hover and pressed. */
+  --action-background: #705269;
+  --action-hover: #60445c;
+  --action-pressed: #50364c;
+  --action-foreground: #ffffff;
+  /* Outlined controls keep their own surface over card hover fills. */
+  --control-background: var(--surface-2);
+  --control-hover: var(--surface-3);
+  --control-border: #a38c9d;
+  --selection-background: #ead8e6;
+  --selection-foreground: #50364c;
+  /* Artwork surfaces complement each cover, in both appearances. */
+  --book-art-0: linear-gradient(145deg in oklab, #e2e7e4, #e7dfcd 60%, #d9c7a5);
+  --book-art-1: linear-gradient(145deg in oklab, #eee5dd, #dfcfc2 60%, #cdb5a4);
+  --book-art-2: linear-gradient(145deg in oklab, #e3e9df, #d1ddcf 60%, #b8cab4);
+  --cover-shadow: 3px 7px 15px #35253524;
+  --shimmer-base: #9a8294;
+  --shimmer-highlight: #655f65;
+}
+
+.dark {
+  --scrim: rgb(0 0 0 / 0.8);
+  /* Same semantic roles, tuned for dark surfaces. */
+  --background: #232224;
+  --foreground: #efecee;
+  --card: #29272b;
+  --card-foreground: var(--foreground);
+  --popover: var(--surface-3);
+  --popover-foreground: var(--foreground);
+  --primary: var(--action-background);
+  --primary-hover: var(--action-hover);
+  --primary-pressed: var(--action-pressed);
+  --primary-foreground: var(--action-foreground);
+  --secondary: var(--tint);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--hover);
+  --muted-foreground: #bfb9bf;
+  --accent: var(--hover);
+  --accent-foreground: var(--foreground);
+  --destructive: #e5a193;
+  --border: #474348;
+  --input: #9c8397;
+  --ring: var(--focus-ring);
+  --chart-1: #4c454e;
+  --chart-2: #795c7d;
+  --chart-3: #9b7f9e;
+  --chart-4: #b99cba;
+  --chart-5: #d6b6d0;
+  --sidebar: var(--surface-2);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--hover);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--focus-ring);
+  --surface-inset: color-mix(in oklab, var(--foreground) 3%, transparent);
+  --surface-1: var(--background);
+  --surface-2: #29272b;
+  --surface-3: #2b292d;
+  --surface-4: #302e32;
+  --surface-5: #353238;
+  --surface-6: #3b373e;
+  --surface-7: #413d45;
+  --surface-8: #48424c;
+  --dm-hi-base: rgba(255,255,255,0.01);
+  --dm-hi-mid: rgba(255,255,255,0.02);
+  --dm-hi-high: rgba(255,255,255,0.04);
+  --dm-hi-peak: rgba(255,255,255,0.06);
+  --dm-ring-base: rgba(255,255,255,0.02);
+  --dm-ring-mid: rgba(255,255,255,0.04);
+  --dm-ring-high: rgba(255,255,255,0.06);
+  --dm-drop: rgba(0,0,0,0.18);
+  --shadow-1: inset 0 0 0 1px var(--dm-ring-base);
+  --shadow-2: inset 0 1px 0 0 var(--dm-hi-base), inset 0 0 0 1px var(--dm-ring-base), 0 1px 1px -0.5px var(--dm-drop);
+  --shadow-3: inset 0 1px 0 0 var(--dm-hi-mid), inset 0 0 0 1px var(--dm-ring-base), 0 0 0 1px rgba(0,0,0,0.12), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop);
+  --shadow-4: inset 0 1px 0 0 var(--dm-hi-mid), inset 0 0 0 1px var(--dm-ring-mid), 0 0 0 1px rgba(0,0,0,0.14), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop);
+  --shadow-5: inset 0 1px 0 0 var(--dm-hi-high), inset 0 0 0 1px var(--dm-ring-mid), 0 0 0 1px rgba(0,0,0,0.16), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop);
+  --shadow-6: inset 0 1px 0 0 var(--dm-hi-high), inset 0 0 0 1px var(--dm-ring-high), 0 0 0 1px rgba(0,0,0,0.18), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop), 0 24px 24px -12px var(--dm-drop);
+  --shadow-7: inset 0 1px 0 0 var(--dm-hi-peak), inset 0 0 0 1px var(--dm-ring-high), 0 0 0 1px rgba(0,0,0,0.20), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop), 0 24px 24px -12px var(--dm-drop), 0 48px 48px -24px var(--dm-drop);
+  --shadow-8: inset 0 1px 0 0 var(--dm-hi-peak), inset 0 0 0 1px var(--dm-ring-high), 0 0 0 1px rgba(0,0,0,0.22), 0 1px 1px -0.5px var(--dm-drop), 0 3px 3px -1.5px var(--dm-drop), 0 6px 6px -3px var(--dm-drop), 0 12px 12px -6px var(--dm-drop), 0 24px 24px -12px var(--dm-drop), 0 48px 48px -24px var(--dm-drop), 0 96px 96px -48px var(--dm-drop);
+  /* The same overlays serve theme menus, purchase links and card highlights. */
+  --hover: rgb(255 255 255 / 0.06);
+  --active: rgb(255 255 255 / 0.1);
+  --selected: #4c454e;
+  --destructive-light: #442b25;
+  --overlay: 255 255 255;
+  --tint: #3c383e;
+  --tint-hover: #464149;
+  --info: #a5c9da;
+  --success: #b0cd9b;
+  --warning: #e6c78b;
+  --checker-a: #1f1f1f;
+  --checker-b: #2a2a2a;
+  --action-background: #d6b6d0;
+  --action-hover: #e3c8dd;
+  --action-pressed: #eed9e9;
+  --action-foreground: #342230;
+  --fluid-accent: var(--action-background);
+  --focus-ring: var(--fluid-accent);
+  --control-background: var(--background);
+  --control-hover: #2b292d;
+  --control-border: #9c8397;
+  --selection-background: #604663;
+  --selection-foreground: #fff4fc;
+  --book-art-0: linear-gradient(145deg in oklab, #2a3638, #3a3b30 60%, #4c402e);
+  --book-art-1: linear-gradient(145deg in oklab, #342f2d, #44352f 60%, #543d30);
+  --book-art-2: linear-gradient(145deg in oklab, #26372f, #304334 60%, #3e5140);
+  --cover-shadow: 3px 9px 22px #00000052;
+  --shimmer-base: #9c8397;
+  --shimmer-highlight: #bfb9bf;
+}
