@@ -31,7 +31,7 @@ export function IsbnCopy({ isbn }: { isbn: string }) {
     const wasVisible = visibleOnPress.current
     let result: "copied" | "error" = "copied"
     try {
-      await navigator.clipboard.writeText(isbn)
+      await navigator.clipboard.writeText(isbn.replace(/[-\s]/g, ""))
     } catch {
       result = "error"
     }
@@ -45,7 +45,7 @@ export function IsbnCopy({ isbn }: { isbn: string }) {
   }
 
   return (
-    <span className="inline-flex items-center gap-1">
+    <span className="flex h-[var(--lh-caption)] items-center gap-1">
       <span>{isbn}</span>
       <Tooltip
         content={label}

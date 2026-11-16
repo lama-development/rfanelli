@@ -1,14 +1,14 @@
-"use client";
+"use client"
 
 import {
   motion,
   AnimatePresence,
   useReducedMotion,
   type Transition,
-} from "motion/react";
-import { cn } from "@/lib/utils";
-import { spring } from "@/lib/springs";
-import type { ItemRect, UseFluidHoverReturn } from "@/hooks/use-fluid-hover";
+} from "motion/react"
+import { cn } from "@/lib/utils"
+import { spring } from "@/lib/springs"
+import type { ItemRect, UseFluidHoverReturn } from "@/hooks/use-fluid-hover"
 
 // ---------------------------------------------------------------------------
 // The one hover highlight every fluid hover list renders: an absolutely
@@ -24,64 +24,66 @@ import type { ItemRect, UseFluidHoverReturn } from "@/hooks/use-fluid-hover";
 
 /** What the highlight reads off the hook: the highlighted index, the
  *  measured rects, whether they are current, and the pointer session. */
-export type FluidHoverSource = Pick<
+type FluidHoverSource = Pick<
   UseFluidHoverReturn,
   "activeIndex" | "itemRects" | "isMeasured" | "session"
->;
+>
 
 interface HighlightFromHook {
   /** The hook's return value. The highlight sits on
    *  `itemRects[activeIndex]` once `isMeasured`, and re-keys on the session. */
-  hover: FluidHoverSource;
+  hover: FluidHoverSource
   /** Keep the list's state but show nothing (a closed popup, hover switched
    *  off). Runs the exit fade. */
-  hidden?: boolean;
-  rect?: never;
-  session?: never;
+  hidden?: boolean
+  rect?: never
+  session?: never
 }
 
 interface HighlightFromRect {
   /** For lists that resolve their own rect (the sidebar's unified scope):
    *  the rect to sit on, in the container's coordinate space. `null` hides
    *  the highlight (it fades out on `spring.fast.exit`). */
-  rect: ItemRect | null;
+  rect: ItemRect | null
   /** `session` from `useFluidHover`. It steps when the cursor enters the
    *  container, which re-keys the highlight so it fades in at `from ?? rect`
    *  instead of sliding over from wherever it was last. */
-  session: number;
-  hover?: never;
-  hidden?: never;
+  session: number
+  hover?: never
+  hidden?: never
 }
 
-export type FluidHoverHighlightProps = (HighlightFromHook | HighlightFromRect) & {
+export type FluidHoverHighlightProps = (
+  HighlightFromHook | HighlightFromRect
+) & {
   /** Where a fresh session fades in from. A dropdown passes its checked row,
    *  a nav menu its active route. Defaults to the rect itself. */
-  from?: ItemRect | null;
+  from?: ItemRect | null
   /** `false` starts a fresh session opaque instead of fading in: for a
    *  `from` under a filled item (the calendar's range start), so the
    *  highlight reads as sliding out of it. */
-  fadeIn?: boolean;
+  fadeIn?: boolean
   /** Radius, z-index, anything else. Merged onto
    *  `absolute bg-hover pointer-events-none`. */
-  className?: string;
+  className?: string
   /** The positional spring. Defaults to `spring.fast`. Pass `false` to snap
    *  to the new rect with no travel (a layout reflow that moved the rows
    *  underneath, not a hover change). The opacity fade is always 0.08s. */
-  transition?: Transition | false;
+  transition?: Transition | false
   /** Every frame the highlight moves or fades: where it is now (container
    *  coordinates) and how opaque. For things that should follow the fill
    *  itself rather than its target, like dividers that hide only once it
    *  covers them. */
-  onFrame?: (box: { y: number; height: number; opacity: number }) => void;
-};
+  onFrame?: (box: { y: number; height: number; opacity: number }) => void
+}
 
-const fade: Transition = { duration: 0.08 };
-const snap: Transition = { duration: 0 };
+const fade: Transition = { duration: 0.08 }
+const snap: Transition = { duration: 0 }
 
 /** A measured rect as animation targets: position as a transform, size as
  *  layout. Exported for the unit test. */
-export function toTarget(rect: ItemRect) {
-  return { x: rect.left, y: rect.top, width: rect.width, height: rect.height };
+function toTarget(rect: ItemRect) {
+  return { x: rect.left, y: rect.top, width: rect.width, height: rect.height }
 }
 
 /**
@@ -89,38 +91,39 @@ export function toTarget(rect: ItemRect) {
  * and drops the travel, per the motion guidelines: fewer and gentler, not
  * none. Exported for the unit test.
  */
-export function resolveHighlightTransition(
+function resolveHighlightTransition(
   transition: Transition | false | undefined,
   reduceMotion: boolean
 ): Transition {
   const positional =
-    transition === false || reduceMotion ? snap : (transition ?? spring.fast);
-  return { ...positional, opacity: fade };
+    transition === false || reduceMotion ? snap : (transition ?? spring.fast)
+  return { ...positional, opacity: fade }
 }
 
 /** The rect and session a set of props resolves to. Exported for the test. */
-export function resolveHighlightSource(
-  props: FluidHoverHighlightProps
-): { rect: ItemRect | null; session: number } {
+function resolveHighlightSource(props: FluidHoverHighlightProps): {
+  rect: ItemRect | null
+  session: number
+} {
   if (props.hover) {
-    const { activeIndex, itemRects, isMeasured, session } = props.hover;
+    const { activeIndex, itemRects, isMeasured, session } = props.hover
     const rect =
       !props.hidden && isMeasured && activeIndex !== null
         ? (itemRects[activeIndex] ?? null)
-        : null;
-    return { rect, session };
+        : null
+    return { rect, session }
   }
-  return { rect: props.rect, session: props.session };
+  return { rect: props.rect, session: props.session }
 }
 
 export function FluidHoverHighlight(props: FluidHoverHighlightProps) {
-  const { from, fadeIn = true, className, transition, onFrame } = props;
-  const { rect, session } = resolveHighlightSource(props);
+  const { from, fadeIn = true, className, transition, onFrame } = props
+  const { rect, session } = resolveHighlightSource(props)
   // Reads the OS media query directly, so an installed copy honours reduced
   // motion without the app wrapping its tree in MotionConfig. A wrapped app
   // gets the same result twice over: the travel is a transform, which
   // MotionConfig reduces too.
-  const reduceMotion = useReducedMotion() ?? false;
+  const reduceMotion = useReducedMotion() ?? false
   return (
     <AnimatePresence>
       {rect && (
@@ -133,7 +136,7 @@ export function FluidHoverHighlight(props: FluidHoverHighlightProps) {
           // values, but they only change when the target rect's size does,
           // which in most lists is never.
           className={cn(
-            "pointer-events-none absolute left-0 top-0 bg-hover",
+            "pointer-events-none absolute top-0 left-0 bg-hover",
             className
           )}
           initial={{ opacity: fadeIn ? 0 : 1, ...toTarget(from ?? rect) }}
@@ -143,17 +146,18 @@ export function FluidHoverHighlight(props: FluidHoverHighlightProps) {
           onUpdate={
             onFrame
               ? (latest) => {
-                  const n = (v: unknown, d: number) => (typeof v === "number" ? v : d);
+                  const n = (v: unknown, d: number) =>
+                    typeof v === "number" ? v : d
                   onFrame({
                     y: n(latest.y, rect.top),
                     height: n(latest.height, rect.height),
                     opacity: n(latest.opacity, 1),
-                  });
+                  })
                 }
               : undefined
           }
         />
       )}
     </AnimatePresence>
-  );
+  )
 }

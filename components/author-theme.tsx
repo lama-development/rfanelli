@@ -87,16 +87,8 @@ export function AuthorTheme() {
                       )
                     })}
                   </span>
-                  <span className="inline-grid text-start">
-                    <span
-                      aria-hidden="true"
-                      className="invisible col-start-1 row-start-1 [text-box:trim-both_cap_alphabetic]"
-                    >
-                      Sistema
-                    </span>
-                    <span className="col-start-1 row-start-1 [text-box:trim-both_cap_alphabetic]">
-                      {options[selectedIndex].label}
-                    </span>
+                  <span className="[text-box:trim-both_cap_alphabetic]">
+                    {options[selectedIndex].label}
                   </span>
                 </span>
               </Button>

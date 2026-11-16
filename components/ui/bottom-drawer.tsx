@@ -59,7 +59,6 @@ BottomDrawerContent.displayName = "BottomDrawerContent"
 
 const BottomDrawer = Drawer.Root
 const BottomDrawerTrigger = Drawer.Trigger
-const BottomDrawerClose = Drawer.Close
 const BottomDrawerTitle = Drawer.Title
 const BottomDrawerDescription = Drawer.Description
 const BottomDrawerBody = Drawer.Content
@@ -68,7 +67,6 @@ export {
   BottomDrawer,
   BottomDrawerTrigger,
   BottomDrawerContent,
-  BottomDrawerClose,
   BottomDrawerTitle,
   BottomDrawerDescription,
   BottomDrawerBody,

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next"
-import { Inter, Geist_Mono } from "next/font/google"
+import { Inter } from "next/font/google"
 import { GeistSerifRegular } from "geist/font/serif/regular"
 
 import "./globals.css"
@@ -14,7 +14,6 @@ const inter = Inter({
   axes: ["opsz"],
   variable: "--font-sans",
 })
-const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 
 export const viewport: Viewport = { viewportFit: "cover" }
 
@@ -36,7 +35,7 @@ export default function RootLayout({
     <html
       lang="it"
       suppressHydrationWarning
-      className={`${inter.variable} ${mono.variable} ${GeistSerifRegular.variable} font-sans antialiased`}
+      className={`${inter.variable} ${GeistSerifRegular.variable} font-sans antialiased`}
     >
       <body>
         <Providers>

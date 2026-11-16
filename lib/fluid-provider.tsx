@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 // ---------------------------------------------------------------------------
 // One wrapper for the whole system. Put it near the root, once, and every
@@ -18,23 +18,27 @@
 // imports the icon set itself (components/providers.tsx in the starter).
 // ---------------------------------------------------------------------------
 
-import type { ReactNode } from "react";
-import { MotionConfig } from "motion/react";
-import { ShapeProvider, type ShapeVariant } from "@/lib/shape-context";
-import { SizeProvider, type SizeVariant } from "@/lib/size-context";
-import { IconProvider, type IconComponent, type IconName } from "@/lib/icon-context";
+import type { ReactNode } from "react"
+import { MotionConfig } from "motion/react"
+import { ShapeProvider, type ShapeVariant } from "@/lib/shape-context"
+import { SizeProvider, type SizeVariant } from "@/lib/size-context"
+import {
+  IconProvider,
+  type IconComponent,
+  type IconName,
+} from "@/lib/icon-context"
 
 export interface FluidProviderProps {
-  children: ReactNode;
-  /** Corner style of every component. Readable and switchable at runtime
-   *  through useShapeContext(). */
-  shape?: ShapeVariant;
+  children: ReactNode
+  /** Corner style of every component. Configured
+   *  through the provider prop. */
+  shape?: ShapeVariant
   /** Size step of every control. Readable and switchable at runtime through
    *  useSizeContext(). */
-  size?: SizeVariant;
+  size?: SizeVariant
   /** Icons by slot name. Slots left out keep Lucide. Pass a module-scope
    *  object: a new object each render re-renders every icon. */
-  icons?: Partial<Record<IconName, IconComponent>>;
+  icons?: Partial<Record<IconName, IconComponent>>
 }
 
 export function FluidProvider({
@@ -51,5 +55,5 @@ export function FluidProvider({
         </SizeProvider>
       </ShapeProvider>
     </MotionConfig>
-  );
+  )
 }

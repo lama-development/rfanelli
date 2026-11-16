@@ -1,36 +1,27 @@
-"use client";
+"use client"
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, type ReactNode } from "react"
 
-type ShapeVariant = "pill" | "rounded" | "sharp";
+type ShapeVariant = "pill" | "rounded" | "sharp"
 
 interface ShapeClasses {
   /** The variant these classes belong to — handy for conditionals. */
-  variant: ShapeVariant;
-  item: string;
-  bg: string;
-  focusRing: string;
-  mergedBg: string;
-  container: string;
-  button: string;
-  input: string;
+  variant: ShapeVariant
+  item: string
+  bg: string
+  focusRing: string
+  mergedBg: string
+  container: string
+  button: string
+  input: string
   // Numeric counterparts of `bg` / `mergedBg`, in px. Needed where individual
   // corners are animated (e.g. the selected-background merge/split animation),
   // which requires per-corner numeric border-radii rather than a class.
-  bgRadius: number;
+  bgRadius: number
   /** Numeric counterpart of `container`. Popup shells use a 4px inset, so
    *  containerRadius = bgRadius + 4 keeps their curves concentric. */
-  containerRadius: number;
-  mergedRadius: number;
+  containerRadius: number
+  mergedRadius: number
 }
 
 /**
@@ -40,12 +31,8 @@ interface ShapeClasses {
  * border separately as `borderWidth`. Together they form the visible
  * edge-to-edge distance. Clamping at zero prevents an invalid negative radius.
  */
-function nestedRadius(
-  outerRadius: number,
-  inset: number,
-  borderWidth = 0
-) {
-  return Math.max(0, outerRadius - inset - borderWidth);
+function nestedRadius(outerRadius: number, inset: number, borderWidth = 0) {
+  return Math.max(0, outerRadius - inset - borderWidth)
 }
 
 const shapeMap: Record<ShapeVariant, ShapeClasses> = {
@@ -93,95 +80,50 @@ const shapeMap: Record<ShapeVariant, ShapeClasses> = {
     containerRadius: 1,
     mergedRadius: 1,
   },
-};
-
-interface ShapeContextValue {
-  shape: ShapeVariant;
-  setShape: (shape: ShapeVariant) => void;
-  classes: ShapeClasses;
 }
 
-const ShapeContext = createContext<ShapeContextValue | null>(null);
+const ShapeContext = createContext<ShapeClasses | null>(null)
 
 // Rounded is the default on every path: the site demos render under
 // <ShapeProvider defaultShape="rounded">, the shipped :focus-visible fallback
 // ring assumes its 8px radius, and the preset generators only emit a provider
 // for pill. A consumer with no provider gets the corners the docs show.
 function useShape(): ShapeClasses {
-  const ctx = useContext(ShapeContext);
-  if (!ctx) return shapeMap.rounded;
-  return ctx.classes;
+  const ctx = useContext(ShapeContext)
+  if (!ctx) return shapeMap.rounded
+  return ctx
 }
 
 // Popup surfaces (menus, select and combobox lists) cap at rounded: pill
 // corners distort their padding at this scale and skew the corner shadows.
 // Sharp carries over, so a sharp UI gets sharp menus.
 function usePopupShape(): ShapeClasses {
-  return useShape().variant === "sharp" ? shapeMap.sharp : shapeMap.rounded;
-}
-
-function useShapeContext() {
-  const ctx = useContext(ShapeContext);
-  if (!ctx) throw new Error("useShapeContext must be used within a ShapeProvider");
-  return ctx;
+  return useShape().variant === "sharp" ? shapeMap.sharp : shapeMap.rounded
 }
 
 function ShapeProvider({
   children,
   defaultShape = "rounded",
 }: {
-  children: ReactNode;
-  defaultShape?: ShapeVariant;
+  children: ReactNode
+  defaultShape?: ShapeVariant
 }) {
-  const [shape, setShapeState] = useState<ShapeVariant>(defaultShape);
-  const transitionTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Run a state change under the `.transitioning` guard (added + reflow-flushed
-  // first so the 180ms border-radius cross-fade applies). Clearing the previous
-  // timeout first keeps a double-press from removing the class mid-fade.
-  const transitionShape = useCallback((callback: () => void) => {
-    const root = document.documentElement;
-    root.classList.add("transitioning");
-    void root.offsetHeight;
-    callback();
-    if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
-    transitionTimeoutRef.current = setTimeout(
-      () => root.classList.remove("transitioning"),
-      200
-    );
-  }, []);
-
-  const setShape = useCallback(
-    (next: ShapeVariant) => {
-      transitionShape(() => setShapeState(next));
-    },
-    [transitionShape]
-  );
-
-  // Publish both radius roles so CSS surfaces and portalled components stay
-  // in sync with the same shape system as the React components.
+  const classes = shapeMap[defaultShape]
+  // Publish the corner radii for CSS surfaces and portalled components.
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--shape-input-radius",
-      `${shapeMap[shape].bgRadius}px`
-    );
+      classes.bgRadius + "px"
+    )
     document.documentElement.style.setProperty(
       "--shape-container-radius",
-      `${shapeMap[shape].containerRadius}px`
-    );
-  }, [shape]);
-
-  const value = useMemo(
-    () => ({ shape, setShape, classes: shapeMap[shape] }),
-    [shape, setShape]
-  );
-
+      classes.containerRadius + "px"
+    )
+  }, [classes])
   return (
-    <ShapeContext.Provider value={value}>
-      {children}
-    </ShapeContext.Provider>
-  );
+    <ShapeContext.Provider value={classes}>{children}</ShapeContext.Provider>
+  )
 }
 
-export { ShapeProvider, useShape, usePopupShape, useShapeContext, shapeMap, nestedRadius };
-export type { ShapeVariant, ShapeClasses };
+export { ShapeProvider, useShape, usePopupShape, nestedRadius }
+export type { ShapeVariant }

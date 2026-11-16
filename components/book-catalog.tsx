@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { BookCover } from "@/components/book-cover"
 import { AuthorLink } from "@/components/author-link"
 import {
@@ -19,6 +20,7 @@ export function BookCatalog({ books }: { books: CatalogBook[] }) {
     <CardGroup
       orientation="inline"
       separated
+      fluidHover={false}
       className="catalog-list"
       role="list"
       aria-label="Tutti i libri"
@@ -26,20 +28,23 @@ export function BookCatalog({ books }: { books: CatalogBook[] }) {
       {books.map((book, index) => (
         <Card
           key={book.slug}
-          href={`/libri/${book.slug}`}
-          label={`Scopri ${book.title}`}
           className="catalog-row"
           role="listitem"
         >
-          <div className={`book-art book-art-${index % 3} catalog-art`}>
+          <Link
+            href={`/libri/${book.slug}`}
+            className={`book-art book-art-${index % 3} catalog-art`}
+          >
             <BookCover
               book={book}
               preload={index === 0}
               sizes="(max-width: 640px) 92px, 160px"
             />
-          </div>
+          </Link>
           <CardHeader className="catalog-copy">
-            <h2 className={typeClass("subtitle")}>{book.title}</h2>
+            <h2 className={typeClass("subtitle")}>
+              <Link href={`/libri/${book.slug}`}>{book.title}</Link>
+            </h2>
             <CardDescription className={typeClass("body")}>
               {book.cardDescription}
             </CardDescription>
