@@ -15,6 +15,11 @@
 /.next/
 /out/
 
+# Cloudflare build output and local state
+/.open-next/
+/.wrangler/
+.dev.vars*
+
 # production
 /build
 /dist/

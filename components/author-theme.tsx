@@ -14,6 +14,7 @@ import { motion, useReducedMotion } from "motion/react"
 import { spring } from "@/lib/springs"
 import { useSize } from "@/lib/size-context"
 import { hitTargetClass } from "@/lib/site-styles"
+import { typeClass } from "@/lib/type-scale"
 import { cn } from "@/lib/utils"
 import { theme as themeMessages } from "@/i18n/it"
 import { formatMessage } from "@/i18n/format"
@@ -51,6 +52,7 @@ export function AuthorTheme() {
                 variant="ghost"
                 className={cn(
                   hitTargetClass,
+                  typeClass("caption"),
                   "[&>span.relative>span]:flex [&>span.relative>span]:[text-box:normal]"
                 )}
                 aria-label={triggerLabel}

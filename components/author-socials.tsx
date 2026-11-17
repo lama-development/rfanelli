@@ -46,21 +46,20 @@ function Instagram(props: SVGProps<SVGSVGElement>) {
   )
 }
 
-// Replace these placeholders with Rosanna's profiles and email address.
 const socials = [
   {
     label: navigation.socials.linkedin,
-    href: "https://example.com/?social=linkedin",
+    href: "https://www.linkedin.com/in/rosanna-fanelli-63507b271/",
     icon: Linkedin,
   },
   {
     label: navigation.socials.instagram,
-    href: "https://example.com/?social=instagram",
+    href: "https://instagram.com/roxy.paty",
     icon: Instagram,
   },
   {
     label: navigation.socials.email,
-    href: "mailto:rosanna@example.com",
+    href: "mailto:fanellirosanna@hotmail.it",
     icon: Mail,
   },
 ]
