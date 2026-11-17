@@ -19,6 +19,7 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { fontWeights } from "@/lib/font-weight"
 import { motion, useReducedMotion } from "motion/react"
 import { cn } from "@/lib/utils"
+import { common } from "@/i18n/it"
 import { useIcons } from "@/lib/icon-context"
 import { spring, exitFallbackMs } from "@/lib/springs"
 import { omit } from "@/lib/omit"
@@ -249,7 +250,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                 {...rest}
                 className={cn(
                   container ? "absolute" : "fixed",
-                  "inset-0 z-[var(--z-overlay,40)] bg-[var(--scrim)]"
+                  "inset-0 z-(--z-overlay,40) bg-(--scrim)"
                 )}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: exiting ? 0 : 1 }}
@@ -289,7 +290,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                 >)}
                 className={cn(
                   container ? "absolute" : "fixed",
-                  "z-[var(--z-modal,50)]",
+                  "z-(--z-modal,50)",
                   bottom
                     ? "bottom-0 left-0 w-full"
                     : "left-1/2 w-[calc(100%-2rem)]",
@@ -298,13 +299,13 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                   "p-6 focus:outline-none",
                   !bottom &&
                     size === "sm" &&
-                    (compact ? "max-w-[360px]" : "max-w-[400px]"),
+                    (compact ? "max-w-90" : "max-w-100"),
                   !bottom &&
                     size === "lg" &&
-                    (compact ? "max-w-[480px]" : "max-w-[540px]"),
+                    (compact ? "max-w-120" : "max-w-135"),
                   !bottom &&
                     size === "xl" &&
-                    (compact ? "max-w-[800px]" : "max-w-[880px]"),
+                    (compact ? "max-w-200" : "max-w-220"),
                   shape.container,
                   bottom && "rounded-b-none",
                   className
@@ -353,7 +354,7 @@ const DialogContent = forwardRef<HTMLDivElement, DialogContentProps>(
                           className="absolute top-3 right-3"
                         >
                           <XIcon />
-                          <span className="sr-only">Close</span>
+                          <span className="sr-only">{common.close}</span>
                         </Button>
                       }
                     />

@@ -225,7 +225,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
             ascenders and descenders aren't shaved. */}
         <span className={cn("inline-grid min-w-0 flex-1", sizeClasses.text)}>
           <span
-            className="invisible col-start-1 row-start-1 -mt-[0.25em] -mb-[0.25em] truncate pt-[0.25em] pb-[0.25em] [text-box:trim-both_cap_alphabetic]"
+            className="invisible col-start-1 row-start-1 mt-[-0.25em] mb-[-0.25em] truncate pt-[0.25em] pb-[0.25em] [text-box:trim-both_cap_alphabetic]"
             style={{ fontVariationSettings: fontWeights.semibold }}
             aria-hidden="true"
           >
@@ -233,7 +233,7 @@ const MenuItem = forwardRef<HTMLDivElement, MenuItemProps>(
           </span>
           <span
             className={cn(
-              "col-start-1 row-start-1 -mt-[0.25em] -mb-[0.25em] truncate pt-[0.25em] pb-[0.25em] transition-[color,font-variation-settings] duration-80 [text-box:trim-both_cap_alphabetic]",
+              "col-start-1 row-start-1 mt-[-0.25em] mb-[-0.25em] truncate pt-[0.25em] pb-[0.25em] transition-[color,font-variation-settings] duration-80 [text-box:trim-both_cap_alphabetic]",
               destructive
                 ? isActive
                   ? "text-destructive"

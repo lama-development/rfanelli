@@ -4,6 +4,7 @@ import type { SVGProps } from "react"
 import { Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipGroup } from "@/components/ui/tooltip"
+import { navigation } from "@/i18n/it"
 
 // Brand marks are separate from Lucide's interface icon set.
 function Linkedin(props: SVGProps<SVGSVGElement>) {
@@ -48,21 +49,25 @@ function Instagram(props: SVGProps<SVGSVGElement>) {
 // Replace these placeholders with Rosanna's profiles and email address.
 const socials = [
   {
-    label: "LinkedIn",
+    label: navigation.socials.linkedin,
     href: "https://example.com/?social=linkedin",
     icon: Linkedin,
   },
   {
-    label: "Instagram",
+    label: navigation.socials.instagram,
     href: "https://example.com/?social=instagram",
     icon: Instagram,
   },
-  { label: "Email", href: "mailto:rosanna@example.com", icon: Mail },
+  {
+    label: navigation.socials.email,
+    href: "mailto:rosanna@example.com",
+    icon: Mail,
+  },
 ]
 
 export function AuthorSocials() {
   return (
-    <nav className="author-socials" aria-label="Social e contatti">
+    <nav className="inline-flex gap-2" aria-label={navigation.socialsLabel}>
       <TooltipGroup>
         {socials.map(({ label, href, icon: Icon }) => (
           <Tooltip key={label} content={label}>
@@ -70,7 +75,7 @@ export function AuthorSocials() {
               variant="ghost"
               size="icon"
               asChild
-              className="social-link fluid-hit-target"
+              className="after:absolute after:-inset-1"
             >
               <a
                 href={href}

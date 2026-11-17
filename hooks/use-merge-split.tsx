@@ -1,54 +1,58 @@
-"use client";
+"use client"
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import { spring } from "@/lib/springs";
-import type { ItemRect } from "@/hooks/use-fluid-hover";
+import { useEffect, useLayoutEffect, useRef, useState } from "react"
+import { AnimatePresence, motion } from "motion/react"
+import { spring } from "@/lib/springs"
+import type { ItemRect } from "@/hooks/use-fluid-hover"
 
 // Run the layout effect on the client (where it must fire before paint, so a
 // merge/split shows on the first frame) and a no-op-safe useEffect on the server.
 const useIsoLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+  typeof window !== "undefined" ? useLayoutEffect : useEffect
 
 // Edge spring for the selected-bg merge/split: spring.moderate (critically
 // damped) so converging edges meet exactly instead of overshooting. On a merge
 // the inner corners trail by `cornerDelay`, staying rounded until the halves meet.
-const mergeSpring = spring.moderate;
-const cornerDelay = 0.07;
+const mergeSpring = spring.moderate
+const cornerDelay = 0.07
 // A boundary resolves after its motion finishes (merge → swap to one block;
 // split → drop), driven by a duration timer rather than onAnimationComplete —
 // framer skips that callback when an animation's target equals its current value
 // (which spam-toggling produces), which would otherwise strand a half. The
 // buffer biases late, by which point the halves have met/parted, so it's unseen.
-const convergeMs = (mergeSpring.duration + cornerDelay) * 1000 + 80;
-const splitMs = mergeSpring.duration * 1000 + 80;
+const convergeMs = (mergeSpring.duration + cornerDelay) * 1000 + 80
+const splitMs = mergeSpring.duration * 1000 + 80
 
 // A selected-background block for one render. A run is normally one block; mid
 // merge/split it is drawn as two abutting halves with sharp inner corners.
-type Rect = { top: number; left: number; width: number; height: number };
+type Rect = { top: number; left: number; width: number; height: number }
 export interface SelBlock extends Rect {
-  key: string;
-  radii: [number, number, number, number]; // tl, tr, br, bl
-  instant: boolean; // skip the spring (the zero-shift swap, the split snap-in)
-  exitInstant: boolean; // drop without the fade (absorbed half at the swap)
-  delayCorners: boolean; // trail the corner straightening (merge converge)
-  cornerDelay?: number; // optional per-block delay override
-  opacity?: number; // override the hover-derived opacity (commit ghost = 0)
+  key: string
+  radii: [number, number, number, number] // tl, tr, br, bl
+  instant: boolean // skip the spring (the zero-shift swap, the split snap-in)
+  exitInstant: boolean // drop without the fade (absorbed half at the swap)
+  delayCorners: boolean // trail the corner straightening (merge converge)
+  cornerDelay?: number // optional per-block delay override
+  opacity?: number // override the hover-derived opacity (commit ghost = 0)
   // State a fresh block animates *from* on mount, so it springs into place
   // instead of snapping when continuity is lost (fast toggling) or the block is
   // inherently new (a split's lower half). Continuous blocks ignore it.
-  enterFrom?: { top: number; height: number; radii: [number, number, number, number] };
+  enterFrom?: {
+    top: number
+    height: number
+    radii: [number, number, number, number]
+  }
 }
 
 // A contiguous run of selected/checked rows, with a stable id so Motion
 // can morph it across renders rather than exit+re-enter.
-export type Run = { start: number; end: number; id: number };
+export type Run = { start: number; end: number; id: number }
 
 interface RunIds {
-  runs: Run[];
+  runs: Run[]
   /** Row index → the id of the run it belongs to. */
-  byRow: Map<number, number>;
-  lastId: number;
+  byRow: Map<number, number>
+  lastId: number
 }
 
 /**
@@ -62,30 +66,30 @@ function assignRunIds(
   prev: ReadonlyMap<number, number>,
   lastId: number
 ): RunIds {
-  const spans: { start: number; end: number }[] = [];
+  const spans: { start: number; end: number }[] = []
   for (const idx of sorted) {
-    const last = spans[spans.length - 1];
-    if (last && idx === last.end + 1) last.end = idx;
-    else spans.push({ start: idx, end: idx });
+    const last = spans[spans.length - 1]
+    if (last && idx === last.end + 1) last.end = idx
+    else spans.push({ start: idx, end: idx })
   }
 
-  const usedIds = new Set<number>();
-  const byRow = new Map<number, number>();
+  const usedIds = new Set<number>()
+  const byRow = new Map<number, number>()
   const runs = spans.map((span) => {
-    let stableId: number | null = null;
+    let stableId: number | null = null
     for (let i = span.start; i <= span.end; i++) {
-      const prevId = prev.get(i);
+      const prevId = prev.get(i)
       if (prevId !== undefined && !usedIds.has(prevId)) {
-        stableId = prevId;
-        break;
+        stableId = prevId
+        break
       }
     }
-    const id = stableId ?? ++lastId;
-    usedIds.add(id);
-    for (let i = span.start; i <= span.end; i++) byRow.set(i, id);
-    return { ...span, id };
-  });
-  return { runs, byRow, lastId };
+    const id = stableId ?? ++lastId
+    usedIds.add(id)
+    for (let i = span.start; i <= span.end; i++) byRow.set(i, id)
+    return { ...span, id }
+  })
+  return { runs, byRow, lastId }
 }
 
 /**
@@ -95,28 +99,31 @@ function assignRunIds(
  * Feed the result to useMergeSplitBlocks.
  */
 export function useSelectionRuns(checkedIndices: readonly number[]): Run[] {
-  const sorted = [...checkedIndices].sort((a, b) => a - b);
-  const key = sorted.join(",");
+  const sorted = [...checkedIndices].sort((a, b) => a - b)
+  const key = sorted.join(",")
   // The ids depend on the previous grouping, so it is kept as state and
   // advanced during render when the selection changes (React re-renders
   // with it before committing). Writing a ref here instead would make
   // rendering itself the side effect.
-  const [ids, setIds] = useState(() => ({ key, ...assignRunIds(sorted, new Map(), 0) }));
-  if (ids.key === key) return ids.runs;
-  const next = { key, ...assignRunIds(sorted, ids.byRow, ids.lastId) };
-  setIds(next);
-  return next.runs;
+  const [ids, setIds] = useState(() => ({
+    key,
+    ...assignRunIds(sorted, new Map(), 0),
+  }))
+  if (ids.key === key) return ids.runs
+  const next = { key, ...assignRunIds(sorted, ids.byRow, ids.lastId) }
+  setIds(next)
+  return next.runs
 }
 
 // One in-flight merge or split; geometry is recomputed from the live runs each
 // render so rapid toggles redirect instead of freezing.
 interface Boundary {
-  tid: number;
-  kind: "merge" | "split";
-  survivorId: number; // persisting run (merged run / split's upper run)
-  otherId: number; // merge: absorbed run; split: new lower run
-  gapIndex: number; // bridging/deselected row — where the halves meet
-  phase: "converge" | "commit" | "splitIn" | "diverge";
+  tid: number
+  kind: "merge" | "split"
+  survivorId: number // persisting run (merged run / split's upper run)
+  otherId: number // merge: absorbed run; split: new lower run
+  gapIndex: number // bridging/deselected row — where the halves meet
+  phase: "converge" | "commit" | "splitIn" | "diverge"
 }
 
 // Two runs within `outer`, ordered, separated by exactly one row (a single-row
@@ -124,10 +131,10 @@ interface Boundary {
 function bridgePair(outer: Run, runs: Run[]) {
   const inside = runs
     .filter((r) => r.start >= outer.start && r.end <= outer.end)
-    .sort((a, b) => a.start - b.start);
-  if (inside.length !== 2) return null;
-  const [up, lo] = inside;
-  return lo.start === up.end + 2 ? { up, lo, gap: up.end + 1 } : null;
+    .sort((a, b) => a.start - b.start)
+  if (inside.length !== 2) return null
+  const [up, lo] = inside
+  return lo.start === up.end + 2 ? { up, lo, gap: up.end + 1 } : null
 }
 
 // ── Merge / split boundary animation ─────────────────────────────
@@ -146,24 +153,24 @@ export function useMergeSplitBlocks(
   itemRects: ItemRect[],
   R: number
 ): SelBlock[] {
-  const [boundaries, setBoundaries] = useState<Boundary[]>([]);
+  const [boundaries, setBoundaries] = useState<Boundary[]>([])
   // The runs the last layout pass saw. State rather than a ref, because the
   // render reads it too (the split safety net below), and the pass updates
   // it in the same batch as the boundaries it found.
-  const [prevRuns, setPrevRuns] = useState<Run[]>([]);
-  const tidRef = useRef(0);
-  const timersRef = useRef(new Map<number, ReturnType<typeof setTimeout>>());
-  const runsSig = runs.map((g) => `${g.id}:${g.start}-${g.end}`).join("|");
+  const [prevRuns, setPrevRuns] = useState<Run[]>([])
+  const tidRef = useRef(0)
+  const timersRef = useRef(new Map<number, ReturnType<typeof setTimeout>>())
+  const runsSig = runs.map((g) => `${g.id}:${g.start}-${g.end}`).join("|")
 
   // Detect merges/splits before paint (so the first frame already shows the
   // halves) and drop any boundary the latest selection invalidated (e.g. the
   // bridge row was toggled again mid-flight).
   useIsoLayoutEffect(() => {
-    const prev = prevRuns;
-    const cur = runs;
-    const found: Boundary[] = [];
+    const prev = prevRuns
+    const cur = runs
+    const found: Boundary[] = []
     for (const c of cur) {
-      const p = bridgePair(c, prev); // two prev runs collapsed into one
+      const p = bridgePair(c, prev) // two prev runs collapsed into one
       if (p && (c.id === p.up.id || c.id === p.lo.id))
         found.push({
           tid: ++tidRef.current,
@@ -172,10 +179,10 @@ export function useMergeSplitBlocks(
           otherId: c.id === p.up.id ? p.lo.id : p.up.id,
           gapIndex: p.gap,
           phase: "converge",
-        });
+        })
     }
     for (const p of prev) {
-      const c = bridgePair(p, cur); // one prev run split into two
+      const c = bridgePair(p, cur) // one prev run split into two
       if (c)
         found.push({
           tid: ++tidRef.current,
@@ -184,29 +191,32 @@ export function useMergeSplitBlocks(
           otherId: c.lo.id,
           gapIndex: c.gap,
           phase: "splitIn",
-        });
+        })
     }
-    setPrevRuns(cur.map((r) => ({ ...r })));
+    setPrevRuns(cur.map((r) => ({ ...r })))
     // Resolve each new boundary after its motion window (merge → swap to one
     // block; split → drop), so an interrupted animation can't strand a half.
     for (const b of found) {
       timersRef.current.set(
         b.tid,
-        setTimeout(() => {
-          timersRef.current.delete(b.tid);
-          setBoundaries((bs) =>
-            bs.some((x) => x.tid === b.tid)
-              ? bs.flatMap((x) =>
-                  x.tid !== b.tid
-                    ? [x]
-                    : x.kind === "merge"
-                    ? [{ ...x, phase: "commit" as const }]
-                    : []
-                )
-              : bs
-          );
-        }, b.kind === "merge" ? convergeMs : splitMs)
-      );
+        setTimeout(
+          () => {
+            timersRef.current.delete(b.tid)
+            setBoundaries((bs) =>
+              bs.some((x) => x.tid === b.tid)
+                ? bs.flatMap((x) =>
+                    x.tid !== b.tid
+                      ? [x]
+                      : x.kind === "merge"
+                        ? [{ ...x, phase: "commit" as const }]
+                        : []
+                  )
+                : bs
+            )
+          },
+          b.kind === "merge" ? convergeMs : splitMs
+        )
+      )
     }
     const stillValid = (b: Boundary) =>
       b.kind === "merge"
@@ -217,34 +227,34 @@ export function useMergeSplitBlocks(
               b.gapIndex < c.end
           )
         : cur.some((c) => c.id === b.survivorId && c.end === b.gapIndex - 1) &&
-          cur.some((c) => c.id === b.otherId && c.start === b.gapIndex + 1);
+          cur.some((c) => c.id === b.otherId && c.start === b.gapIndex + 1)
     setBoundaries((active) => {
       // Cancel the resolve timer of any boundary the latest selection
       // invalidated — otherwise it sits in timersRef until firing as a no-op.
       // Clearing is idempotent, so a double-invoked updater is harmless.
       for (const b of active) {
-        if (stillValid(b)) continue;
-        const timer = timersRef.current.get(b.tid);
+        if (stillValid(b)) continue
+        const timer = timersRef.current.get(b.tid)
         if (timer !== undefined) {
-          clearTimeout(timer);
-          timersRef.current.delete(b.tid);
+          clearTimeout(timer)
+          timersRef.current.delete(b.tid)
         }
       }
-      return [...active.filter(stillValid), ...found];
-    });
-  }, [runsSig]);
+      return [...active.filter(stillValid), ...found]
+    })
+  }, [runsSig])
 
   // Clear any pending timers on unmount.
   useEffect(() => {
-    const timers = timersRef.current;
-    return () => timers.forEach(clearTimeout);
-  }, []);
+    const timers = timersRef.current
+    return () => timers.forEach(clearTimeout)
+  }, [])
 
   // Follow-up frame: a fresh split holds its abutting frame once then
   // diverges; a committed merge is dropped.
   useEffect(() => {
     if (!boundaries.some((b) => b.phase === "splitIn" || b.phase === "commit"))
-      return;
+      return
     const frame = requestAnimationFrame(() =>
       setBoundaries((bs) =>
         bs.flatMap((b) =>
@@ -253,26 +263,26 @@ export function useMergeSplitBlocks(
             : [{ ...b, phase: b.phase === "splitIn" ? "diverge" : b.phase }]
         )
       )
-    );
-    return () => cancelAnimationFrame(frame);
-  }, [boundaries]);
+    )
+    return () => cancelAnimationFrame(frame)
+  }, [boundaries])
 
   // Build the blocks to paint: one per run, overridden into abutting halves for
   // any run in an in-flight boundary.
   const rectOf = (start: number, end: number): Rect | null => {
-    const s = itemRects[start];
-    const e = itemRects[end];
-    if (!s || !e) return null;
+    const s = itemRects[start]
+    const e = itemRects[end]
+    if (!s || !e) return null
     return {
       top: s.top,
       left: Math.min(s.left, e.left),
       width: Math.max(s.width, e.width),
       height: e.top + e.height - s.top,
-    };
-  };
-  const blocks: SelBlock[] = [];
+    }
+  }
+  const blocks: SelBlock[] = []
   for (const run of runs) {
-    const r = rectOf(run.start, run.end);
+    const r = rectOf(run.start, run.end)
     if (r)
       blocks.push({
         key: `sel-${run.id}`,
@@ -281,21 +291,21 @@ export function useMergeSplitBlocks(
         instant: false,
         exitInstant: false,
         delayCorners: false,
-      });
+      })
   }
-  const byId = new Map(blocks.map((b) => [b.key, b]));
+  const byId = new Map(blocks.map((b) => [b.key, b]))
   for (const b of boundaries) {
-    const gap = itemRects[b.gapIndex];
-    const sv = byId.get(`sel-${b.survivorId}`);
-    if (!gap || !sv) continue;
-    const midY = gap.top + gap.height / 2;
+    const gap = itemRects[b.gapIndex]
+    const sv = byId.get(`sel-${b.survivorId}`)
+    if (!gap || !sv) continue
+    const midY = gap.top + gap.height / 2
     if (b.kind === "merge") {
       if (b.phase === "commit") {
         // Zero-shift swap: survivor jumps to the full union (already covered by
         // its top half + the absorbed bottom half). The absorbed half is held
         // one render at opacity 0 so removing it next render can't flash a
         // one-frame overlap with the now-full survivor.
-        sv.instant = true;
+        sv.instant = true
         blocks.push({
           key: `sel-${b.otherId}`,
           top: midY,
@@ -307,21 +317,24 @@ export function useMergeSplitBlocks(
           exitInstant: true,
           delayCorners: false,
           opacity: 0,
-        });
-        continue;
+        })
+        continue
       }
       // converge: survivor → top half, absorbed run → bottom-half ghost, inner
       // corners straightening to sharp.
       // Slightly trail lower merges while keeping a baseline and small cap.
       const mergeCornerDelay = Math.min(
         cornerDelay + 0.03,
-        Math.max(cornerDelay, cornerDelay + (midY / Math.max(gap.height, 1)) * 0.002)
-      );
-      const bottom = sv.top + sv.height;
-      sv.height = midY - sv.top;
-      sv.radii = [R, R, 0, 0];
-      sv.delayCorners = true;
-      sv.cornerDelay = mergeCornerDelay;
+        Math.max(
+          cornerDelay,
+          cornerDelay + (midY / Math.max(gap.height, 1)) * 0.002
+        )
+      )
+      const bottom = sv.top + sv.height
+      sv.height = midY - sv.top
+      sv.radii = [R, R, 0, 0]
+      sv.delayCorners = true
+      sv.cornerDelay = mergeCornerDelay
       blocks.push({
         key: `sel-${b.otherId}`,
         top: midY,
@@ -336,21 +349,21 @@ export function useMergeSplitBlocks(
         exitInstant: true,
         delayCorners: true,
         cornerDelay: mergeCornerDelay,
-      });
+      })
     } else if (b.phase === "splitIn") {
-      const lo = byId.get(`sel-${b.otherId}`);
-      if (!lo) continue;
+      const lo = byId.get(`sel-${b.otherId}`)
+      if (!lo) continue
       // Pin both halves at the seam (identical to the single block); the
       // diverge render then springs them to their real rects.
-      const bottom = lo.top + lo.height;
-      sv.height = midY - sv.top;
-      sv.radii = [R, R, 0, 0];
-      sv.instant = true;
-      lo.top = midY;
-      lo.height = bottom - midY;
-      lo.radii = [0, 0, R, R];
-      lo.instant = true;
-      lo.enterFrom = { top: midY, height: bottom - midY, radii: [0, 0, R, R] };
+      const bottom = lo.top + lo.height
+      sv.height = midY - sv.top
+      sv.radii = [R, R, 0, 0]
+      sv.instant = true
+      lo.top = midY
+      lo.height = bottom - midY
+      lo.radii = [0, 0, R, R]
+      lo.instant = true
+      lo.enterFrom = { top: midY, height: bottom - midY, radii: [0, 0, R, R] }
     }
     // diverge: nothing to override — the steady blocks spring to their real
     // rects from the seam; the timer drops the boundary.
@@ -363,25 +376,25 @@ export function useMergeSplitBlocks(
   // halves at the seam guarantees the lower mounts on the seam regardless of
   // render/paint timing (the cause of the rapid-toggle snap).
   for (const p of prevRuns) {
-    const c = bridgePair(p, runs);
-    const gap = c && itemRects[c.gap];
-    if (!c || !gap) continue;
-    const midY = gap.top + gap.height / 2;
-    const up = byId.get(`sel-${c.up.id}`);
-    const lo = byId.get(`sel-${c.lo.id}`);
-    if (!up || !lo) continue;
-    const bottom = lo.top + lo.height;
-    up.height = midY - up.top;
-    up.radii = [R, R, 0, 0];
-    up.instant = true;
-    lo.top = midY;
-    lo.height = bottom - midY;
-    lo.radii = [0, 0, R, R];
-    lo.instant = true;
-    lo.enterFrom = { top: midY, height: bottom - midY, radii: [0, 0, R, R] };
+    const c = bridgePair(p, runs)
+    const gap = c && itemRects[c.gap]
+    if (!c || !gap) continue
+    const midY = gap.top + gap.height / 2
+    const up = byId.get(`sel-${c.up.id}`)
+    const lo = byId.get(`sel-${c.lo.id}`)
+    if (!up || !lo) continue
+    const bottom = lo.top + lo.height
+    up.height = midY - up.top
+    up.radii = [R, R, 0, 0]
+    up.instant = true
+    lo.top = midY
+    lo.height = bottom - midY
+    lo.radii = [0, 0, R, R]
+    lo.instant = true
+    lo.enterFrom = { top: midY, height: bottom - midY, radii: [0, 0, R, R] }
   }
 
-  return blocks;
+  return blocks
 }
 
 // Renders the selected-background blocks produced by useMergeSplitBlocks — one
@@ -389,23 +402,19 @@ export function useMergeSplitBlocks(
 // override (e.g. the commit ghost) applies; otherwise blocks render fully
 // opaque. Corners are driven numerically so merge/split can straighten and
 // re-round individual corners.
-export function SelectionBackgrounds({
-  blocks,
-}: {
-  blocks: SelBlock[];
-}) {
+export function SelectionBackgrounds({ blocks }: { blocks: SelBlock[] }) {
   return (
     <AnimatePresence>
       {blocks.map((b) => {
         const corner = b.delayCorners
           ? { ...mergeSpring, delay: b.cornerDelay ?? cornerDelay }
-          : mergeSpring;
-        const opacity = b.opacity ?? 1;
+          : mergeSpring
+        const opacity = b.opacity ?? 1
         return (
           <motion.div
             key={b.key}
             aria-hidden
-            className="absolute bg-active pointer-events-none"
+            className="pointer-events-none absolute bg-active"
             initial={
               b.enterFrom
                 ? {
@@ -432,7 +441,10 @@ export function SelectionBackgrounds({
               borderBottomLeftRadius: b.radii[3],
               opacity,
             }}
-            exit={{ opacity: 0, transition: b.exitInstant ? { duration: 0 } : mergeSpring.exit }}
+            exit={{
+              opacity: 0,
+              transition: b.exitInstant ? { duration: 0 } : mergeSpring.exit,
+            }}
             transition={
               b.instant
                 ? { duration: 0 }
@@ -446,8 +458,8 @@ export function SelectionBackgrounds({
                   }
             }
           />
-        );
+        )
       })}
     </AnimatePresence>
-  );
+  )
 }

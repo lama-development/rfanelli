@@ -1,10 +1,11 @@
 "use client"
 
 import { useSyncExternalStore } from "react"
+import { intlLocale, timeZone } from "@/i18n/config"
 
-const formatter = new Intl.DateTimeFormat("it-IT", {
+const formatter = new Intl.DateTimeFormat(intlLocale, {
   year: "numeric",
-  timeZone: "Europe/Rome",
+  timeZone,
 })
 const currentYear = () => Number(formatter.format(new Date()))
 

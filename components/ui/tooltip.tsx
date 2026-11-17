@@ -101,7 +101,7 @@ function getSlideOffset(side: TooltipSide) {
 // padding bump only applies where text-box is supported, keeping the same
 // overall height (~24px) as untrimmed browsers.
 const bubbleText =
-  "text-background text-[length:var(--fs-caption,12px)] leading-[var(--lh-caption,16px)] px-2 py-1 [text-box:trim-both_cap_alphabetic] supports-[text-box:trim-both]:py-2"
+  "text-background text-(length:--fs-caption,12px) leading-(--lh-caption,16px) px-2 py-1 [text-box:trim-both_cap_alphabetic] supports-[text-box:trim-both]:py-2"
 
 // ---------------------------------------------------------------------------
 // TooltipGroup
@@ -540,7 +540,7 @@ function Tooltip({
           side={side}
           sideOffset={sideOffset}
           className={cn(
-            "z-[var(--z-tooltip,70)]",
+            "z-(--z-tooltip,70)",
             groupStore && "pointer-events-none",
             contentClassName
           )}

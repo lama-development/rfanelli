@@ -2,7 +2,7 @@
  * Carta & malva. Single source of truth for both color themes.
  * Light: ivory paper, plum ink, muted mauve actions.
  * Dark: neutral charcoal with a trace of mauve, dusty lilac actions.
- * Components consume role tokens; layout and typography live in globals.css.
+ * Components consume role tokens; layout lives in Tailwind utilities; typography uses shared role tokens.
  * Theme switching is controlled exclusively by next-themes (.dark on html).
  */
 

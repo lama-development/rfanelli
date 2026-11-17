@@ -6,6 +6,9 @@ import { motion } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { Tooltip } from "@/components/ui/tooltip"
 import { spring } from "@/lib/springs"
+import { hitTargetClass } from "@/lib/site-styles"
+import { cn } from "@/lib/utils"
+import { isbn as messages } from "@/i18n/it"
 
 export function IsbnCopy({ isbn }: { isbn: string }) {
   const [status, setStatus] = useState<"idle" | "copied" | "error">("idle")
@@ -15,10 +18,10 @@ export function IsbnCopy({ isbn }: { isbn: string }) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const label =
     status === "copied"
-      ? "ISBN copiato"
+      ? messages.copied
       : status === "error"
-        ? "Copia non riuscita. Riprova"
-        : "Copia ISBN"
+        ? messages.error
+        : messages.copy
 
   useEffect(
     () => () => {
@@ -45,7 +48,7 @@ export function IsbnCopy({ isbn }: { isbn: string }) {
   }
 
   return (
-    <span className="flex h-[var(--lh-caption)] items-center gap-1">
+    <span className="flex h-(--lh-caption) items-center gap-1">
       <span>{isbn}</span>
       <Tooltip
         content={label}
@@ -58,8 +61,8 @@ export function IsbnCopy({ isbn }: { isbn: string }) {
           type="button"
           variant="ghost"
           size="icon-compact"
-          className="fluid-hit-target shrink-0"
-          aria-label="Copia ISBN"
+          className={cn(hitTargetClass, "shrink-0")}
+          aria-label={messages.copy}
           onPointerDown={() => {
             visibleOnPress.current = visible.current
           }}

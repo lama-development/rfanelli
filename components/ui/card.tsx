@@ -15,6 +15,7 @@ import {
 } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { common } from "@/i18n/it"
 import { useShape } from "@/lib/shape-context"
 import {
   SizeProvider,
@@ -361,7 +362,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
             target={external ? "_blank" : undefined}
             rel={external ? "noopener noreferrer" : undefined}
             aria-label={label}
-            className="absolute inset-0 z-20 rounded-[inherit] outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)] focus-visible:ring-inset"
+            className="absolute inset-0 z-20 rounded-[inherit] outline-none focus-visible:ring-1 focus-visible:ring-(--focus-ring,#6B97FF) focus-visible:ring-inset"
           />
         ) : (
           <button
@@ -369,7 +370,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
             onClick={onClick}
             aria-label={label}
             aria-pressed={selected || undefined}
-            className="absolute inset-0 z-20 rounded-[inherit] outline-none focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)] focus-visible:ring-inset"
+            className="absolute inset-0 z-20 rounded-[inherit] outline-none focus-visible:ring-1 focus-visible:ring-(--focus-ring,#6B97FF) focus-visible:ring-inset"
           />
         )
       ) : null
@@ -420,7 +421,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           data-orientation={orientation}
           aria-disabled={disabled || undefined}
           className={cn(
-            "group/card relative z-10 min-h-[60px] min-w-0",
+            "group/card relative z-10 min-h-15 min-w-0",
             inlineImage
               ? // Image on the left; the text + actions ride in a centred
                 // column beside it (see the wrapper in the body below).
@@ -446,7 +447,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
               isInline &&
               (dismissOnHover
                 ? "[&:focus-within_[data-slot=card-header]]:pr-10 [&:hover_[data-slot=card-header]]:pr-10"
-                : "[&_[data-slot=card-header]]:pr-10"),
+                : "**:data-[slot=card-header]:pr-10"),
             tileShape,
             disabled && "pointer-events-none opacity-50",
             className
@@ -493,9 +494,9 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
             <button
               type="button"
               onClick={onDismiss}
-              aria-label="Dismiss"
+              aria-label={common.dismiss}
               className={cn(
-                "absolute top-2 right-2 z-30 flex h-7 w-7 cursor-pointer items-center justify-center text-muted-foreground transition-colors duration-80 outline-none hover:text-foreground focus-visible:ring-1 focus-visible:ring-[color:var(--focus-ring,#6B97FF)]",
+                "absolute top-2 right-2 z-30 flex h-7 w-7 cursor-pointer items-center justify-center text-muted-foreground transition-colors duration-80 outline-none hover:text-foreground focus-visible:ring-1 focus-visible:ring-(--focus-ring,#6B97FF)",
                 // Over media the control needs its own ground, or the icon
                 // reads against whatever the image happens to be. Elsewhere
                 // the usual hover fill is enough. The chip takes the button
@@ -647,8 +648,8 @@ function CardImage({ src, alt, className }: CardImageProps) {
       // changes this geometry nor disappears when a pale image meets the page.
       // (A framed tile still clips the surrounding surface as before.)
       className={cn(
-        "rounded-[2px] object-cover outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10",
-        orientation === "inline" ? "size-40 shrink-0" : "aspect-[16/9] w-full",
+        "rounded-xs object-cover outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10",
+        orientation === "inline" ? "size-40 shrink-0" : "aspect-video w-full",
         className
       )}
     />

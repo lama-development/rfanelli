@@ -2,21 +2,22 @@ import type { Metadata } from "next"
 import { BookCatalog } from "@/components/book-catalog"
 import { books } from "@/lib/books"
 import { typeClass } from "@/lib/type-scale"
+import { Prose } from "@/components/prose"
+import { catalog, navigation } from "@/i18n/it"
 
 export const metadata: Metadata = {
-  title: "Tutti i libri",
-  description:
-    "Le opere di Rosanna Fanelli e Mauro Caneparo: Geode, Il previ va masà e Il richiamo dell’abate.",
+  title: navigation.allBooks,
+  description: catalog.metadataDescription,
 }
 
 export default function BooksPage() {
   return (
-    <main id="contenuto" className="books-catalog">
-      <header className="catalog-heading">
-        <h1 className={typeClass("display")}>Tutti i libri</h1>
-        <div className="typeset">
-          <p>Le opere di Rosanna Fanelli e Mauro Caneparo.</p>
-        </div>
+    <main id="contenuto" className="pt-16 pb-18 mobile:pt-10 mobile:pb-11">
+      <header className="mb-8 flex flex-col gap-3 mobile:mb-6">
+        <h1 className={typeClass("display")}>{navigation.allBooks}</h1>
+        <Prose>
+          <p>{catalog.description}</p>
+        </Prose>
       </header>
       <BookCatalog
         books={books.map(({ slug, title, cover, cardDescription }) => ({

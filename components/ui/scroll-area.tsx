@@ -16,6 +16,7 @@ import {
 } from "react"
 import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 import { cn } from "@/lib/utils"
+import { common } from "@/i18n/it"
 import { useShape } from "@/lib/shape-context"
 import { useTouchPrimary } from "@/hooks/use-touch-primary"
 
@@ -55,14 +56,14 @@ const ScrollArea = forwardRef<
             ref={ref}
             role="group"
             data-slot="scroll-area"
-            aria-roledescription="scroll area"
+            aria-roledescription={common.scrollArea}
             className={cn("relative overflow-hidden", className)}
             {...props}
           >
             <div
               data-slot="scroll-area-viewport"
               className={cn(
-                "size-full rounded-[inherit] focus-visible:outline-offset-[-1px]",
+                "size-full rounded-[inherit] focus-visible:-outline-offset-1",
                 orientation === "vertical" && "overflow-y-auto",
                 orientation === "horizontal" && "overflow-x-auto",
                 orientation === "both" && "overflow-auto",
@@ -83,7 +84,7 @@ const ScrollArea = forwardRef<
             <ScrollAreaPrimitive.Viewport
               data-slot="scroll-area-viewport"
               className={cn(
-                "size-full rounded-[inherit] focus-visible:outline-offset-[-1px]",
+                "size-full rounded-[inherit] focus-visible:-outline-offset-1",
                 viewportClassName
               )}
             >
@@ -137,9 +138,9 @@ const ScrollBar = forwardRef<
         // fading so the thumb visibly narrows back first instead of the fade
         // masking it.
         "opacity-0 transition-opacity delay-160 duration-120 ease-out",
-        "data-[hovering]:duration-160 data-[scrolling]:duration-160",
-        "data-[hovering]:opacity-100 data-[scrolling]:opacity-100",
-        "data-[hovering]:delay-0 data-[scrolling]:delay-0",
+        "data-hovering:duration-160 data-scrolling:duration-160",
+        "data-hovering:opacity-100 data-scrolling:opacity-100",
+        "data-hovering:delay-0 data-scrolling:delay-0",
         orientation === "vertical" && "top-0 right-0 h-full w-2.5",
         orientation === "horizontal" && "bottom-0 left-0 h-2.5 w-full flex-col",
         className
@@ -152,14 +153,14 @@ const ScrollBar = forwardRef<
           // Fixed surface-relative overlay ramp (8 → 12 → 16%) — same tint
           // direction as the menu hover/active tokens, one notch stronger.
           "relative bg-[rgb(var(--overlay)/0.08)] transition-[background-color,width,height] duration-160 ease-in-out",
-          "group-hover/scrollbar:bg-[rgb(var(--overlay)/0.12)] active:!bg-[rgb(var(--overlay)/0.16)]",
+          "group-hover/scrollbar:bg-[rgb(var(--overlay)/0.12)] active:bg-[rgb(var(--overlay)/0.16)]!",
           shape.bg,
           // -translate nudges the thumb 2px off the container edge; the track
           // (and its 10px hit target) stays flush so edge-throws still land.
           orientation === "vertical" &&
-            "mx-auto my-1 h-[var(--scroll-area-thumb-height)] w-1 -translate-x-0.5 group-hover/scrollbar:w-1.5",
+            "mx-auto my-1 h-(--scroll-area-thumb-height) w-1 -translate-x-0.5 group-hover/scrollbar:w-1.5",
           orientation === "horizontal" &&
-            "mx-1 my-auto h-1 w-[var(--scroll-area-thumb-width)] -translate-y-0.5 group-hover/scrollbar:h-1.5"
+            "mx-1 my-auto h-1 w-(--scroll-area-thumb-width) -translate-y-0.5 group-hover/scrollbar:h-1.5"
         )}
       />
     </ScrollAreaPrimitive.Scrollbar>

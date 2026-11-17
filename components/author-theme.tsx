@@ -13,11 +13,15 @@ import { Tooltip } from "@/components/ui/tooltip"
 import { motion, useReducedMotion } from "motion/react"
 import { spring } from "@/lib/springs"
 import { useSize } from "@/lib/size-context"
+import { hitTargetClass } from "@/lib/site-styles"
+import { cn } from "@/lib/utils"
+import { theme as themeMessages } from "@/i18n/it"
+import { formatMessage } from "@/i18n/format"
 const subscribe = () => () => {}
 const options = [
-  { value: "light", label: "Chiaro", icon: Sun },
-  { value: "dark", label: "Scuro", icon: Moon },
-  { value: "system", label: "Sistema", icon: Monitor },
+  { value: "light", label: themeMessages.options.light, icon: Sun },
+  { value: "dark", label: themeMessages.options.dark, icon: Moon },
+  { value: "system", label: themeMessages.options.system, icon: Monitor },
 ] as const
 export function AuthorTheme() {
   const [open, setOpen] = useState(false)
@@ -34,22 +38,27 @@ export function AuthorTheme() {
     0,
     options.findIndex((option) => option.value === selected)
   )
-  const triggerLabel = `Cambia tema: ${options[selectedIndex].label}`
+  const triggerLabel = formatMessage(themeMessages.change, {
+    theme: options[selectedIndex].label,
+  })
   return (
-    <div className="author-theme">
+    <div className="justify-self-end mobile:justify-self-center">
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <Tooltip content={triggerLabel} forceOpen={open ? false : undefined}>
           <DropdownTrigger
             render={
               <Button
                 variant="ghost"
-                className="theme-trigger fluid-hit-target"
+                className={cn(
+                  hitTargetClass,
+                  "[&>span.relative>span]:flex [&>span.relative>span]:[text-box:normal]"
+                )}
                 aria-label={triggerLabel}
                 active={open}
               >
                 <span className="inline-flex items-center gap-2">
                   <span
-                    className="theme-icon-stack"
+                    className="grid"
                     style={{ width: iconSize, height: iconSize }}
                     aria-hidden="true"
                   >
@@ -58,7 +67,7 @@ export function AuthorTheme() {
                       return (
                         <motion.span
                           key={value}
-                          className="col-start-1 row-start-1 flex"
+                          className="col-start-1 row-start-1 flex motion-reduce:transform-none! motion-reduce:filter-none!"
                           initial={false}
                           animate={{
                             opacity: visible ? 1 : 0,

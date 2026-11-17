@@ -401,7 +401,7 @@ const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
           alignOffset={alignOffset}
           collisionBoundary={collisionBoundary ?? undefined}
           collisionPadding={collisionPadding}
-          className="z-[var(--z-popover,60)] outline-none"
+          className="z-(--z-popover,60) outline-none"
         >
           <motion.div
             className={popupMotionClass}
@@ -478,7 +478,7 @@ const DropdownContent = forwardRef<HTMLDivElement, DropdownContentProps>(
                   setActiveIndex(null)
                 }}
                 className={cn(
-                  `flex max-h-[min(480px,var(--available-height))] w-72 max-w-full min-w-[var(--anchor-width)] flex-col overflow-hidden ${shape.container} outline-none select-none`,
+                  `flex max-h-[min(480px,var(--available-height))] w-72 max-w-full min-w-(--anchor-width) flex-col overflow-hidden ${shape.container} outline-none select-none`,
                   className
                 )}
               >

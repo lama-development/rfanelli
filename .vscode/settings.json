@@ -1,0 +1,6 @@
+{
+  "css.customData": [".vscode/tailwind.css-data.json"],
+  "json.schemaDownload.trustedDomains": {
+    "https://ui.shadcn.com/": true
+  }
+}

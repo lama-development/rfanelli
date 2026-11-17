@@ -1,11 +1,11 @@
 export const popupMotionClass =
   "origin-top [--popup-enter-y:-4px] " +
   "data-[side=top]:origin-bottom data-[side=top]:[--popup-enter-y:4px] " +
-  "[[data-side=top]_&]:origin-bottom [[data-side=top]_&]:[--popup-enter-y:4px] " +
+  "in-data-[side=top]:origin-bottom in-data-[side=top]:[--popup-enter-y:4px] " +
   "data-[side=left]:origin-right data-[side=left]:[--popup-enter-y:0px] " +
-  "[[data-side=left]_&]:origin-right [[data-side=left]_&]:[--popup-enter-y:0px] " +
+  "in-data-[side=left]:origin-right in-data-[side=left]:[--popup-enter-y:0px] " +
   "data-[side=right]:origin-left data-[side=right]:[--popup-enter-y:0px] " +
-  "[[data-side=right]_&]:origin-left [[data-side=right]_&]:[--popup-enter-y:0px]"
+  "in-data-[side=right]:origin-left in-data-[side=right]:[--popup-enter-y:0px]"
 
 /**
  * Popup lists scroll inside ScrollArea: the hover-revealed thumb instead of
@@ -19,7 +19,7 @@ export const popupMotionClass =
  */
 export const popupScrollAreaClass = "min-h-0 flex-1 max-h-[inherit]"
 export const popupViewportClass =
-  "!h-auto max-h-[inherit] [&>div[style]]:!block [&>div[style]]:!min-w-0 [--scroll-fade-size:32px]"
+  "h-auto! max-h-[inherit] [&>div[style]]:block! [&>div[style]]:min-w-0! [--scroll-fade-size:32px]"
 
 /**
  * Rows the fluid hover must skip: a disabled row is neither a target
