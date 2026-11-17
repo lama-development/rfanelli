@@ -39,8 +39,7 @@ export function BookCatalog({ books }: { books: CatalogBook[] }) {
           >
             <BookCover
               book={book}
-              preload={index === 0}
-              sizes="(max-width: 640px) 92px, 160px"
+              highPriority={index === 0}
               variant="catalog"
             />
           </Link>

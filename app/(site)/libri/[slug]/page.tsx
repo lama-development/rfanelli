@@ -36,7 +36,7 @@ export default async function BookPage({ params }: Props) {
       </AuthorLink>
       <article className="grid grid-cols-[minmax(0,var(--book-media-width))_minmax(0,1fr)] items-start gap-(--book-column-gap) pt-7 pb-12 mobile:grid-cols-1 mobile:gap-7 mobile:pt-5 mobile:pb-10">
         <div className={bookArtClass(books.indexOf(book), "detail")}>
-          <BookCover book={book} preload />
+          <BookCover book={book} highPriority variant="detail" />
         </div>
         <div className="pt-5 mobile:pt-0">
           <h1 className="text-display [--fs-display:clamp(36px,4vw,50px)] [--lh-display:1.1]">

@@ -1,13 +1,14 @@
 import { bookContent, bookAuthors as localizedBookAuthors } from "@/i18n/it"
 import { formatMessage } from "@/i18n/format"
+import geodeAsset from "@/public/books/geode.avif"
+import previAsset from "@/public/books/il-previ-va-masa.avif"
+import abateAsset from "@/public/books/il-richiamo-dell-abate.avif"
 
-const geode = { src: "/books/geode.avif", width: 560, height: 790 }
-const previ = { src: "/books/il-previ-va-masa.avif", width: 500, height: 714 }
-const abate = {
-  src: "/books/il-richiamo-dell-abate.avif",
-  width: 1584,
-  height: 2480,
-}
+// Static imports version the URLs for immutable caching. Turbopack currently
+// reports placeholder dimensions for AVIF, so keep the real dimensions here.
+const geode = { src: geodeAsset.src, width: 560, height: 790 }
+const previ = { src: previAsset.src, width: 500, height: 714 }
+const abate = { src: abateAsset.src, width: 1584, height: 2480 }
 
 // Official names and websites, shared by book facts and editorial copy.
 export const publishers = {

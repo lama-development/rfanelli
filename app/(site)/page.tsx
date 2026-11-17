@@ -81,7 +81,7 @@ export default function Home() {
                   title: book.title,
                 })}
               >
-                <BookCover book={book} preload={index === 0} />
+                <BookCover book={book} highPriority={index === 0} />
               </Link>
               <div className="flex flex-1 flex-col items-start pt-6">
                 <h3 className="text-subtitle">
